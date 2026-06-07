@@ -1,40 +1,74 @@
-import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
-
-const DANH_SACH_KY_NANG = [
-  { id: '1', ten: 'React Native' },
-  { id: '2', ten: 'JavaScript' },
-  { id: '3', ten: 'Thiết kế UI/UX' },
-  { id: '4', ten: 'Làm việc nhóm' },
-  { id: '5', ten: 'Nấu ăn ngon 🍳' },
-  { id: '6', ten: 'Lắng nghe và thấu hiểu người khác' },
-  { id: '7', ten: 'Kiểm soát cảm xúc' },
-  { id: '8', ten: 'Thích nghi với môi trường mới' },
-  { id: '9', ten: 'Giải quyết vấn đề' },
-  { id: '10', ten: 'Giao tiếp' },
-];
-
-export default function ProfileScreen() {
-  
-const hienThiKyNang = ({ item }: { item: any }) => (
-    <View style={styles.itemBox}>
-      <Text style={styles.itemText}>{item.ten}</Text>
-    </View>
-  );
+import React, { useState } from 'react';
+import {
+    FlatList,
+    Keyboard,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
+interface Task {
+  id: string;
+  text: string;
+}
+export default function TodoListScreen() {
+  const [tasks, setTasks] = useState<Task[]>([
+    { id: '1', text: 'Học bài thi' },
+    { id: '2', text: 'Làm slide báo cáo thực tập' }
+  ]);
+  const [inputText, setInputText] = useState<string>('');
+  const handleAddTask = () => {
+    if (inputText.trim() === '') return;
+    const newTask: Task = {
+      id: Math.random().toString(),
+      text: inputText
+    };
+    setTasks([...tasks, newTask]);
+    setInputText('');
+    Keyboard.dismiss();
+  };
+  const handleDeleteTask = (taskId: string) => {
+    const updatedTasks = tasks.filter(item => item.id !== taskId);
+    setTasks(updatedTasks);
+  };
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: 'https://i.pinimg.com/736x/cc/27/42/cc274277fb45404f093ba001bd1b95d1.jpg' }} 
-      style={styles.avatar} />
-      <Text style={styles.name}>Nguyễn Quốc Thịnh</Text>
-      <Text style={styles.bio}>Sinh viên ĐHKH</Text>
-      
-      <Text style={styles.sectionTitle}>Kỹ năng của tôi:</Text>
-      
+      <Text style={styles.title}>Quản Lý Công Việc </Text>
+
+      {/* Khu vực Nhập liệu */}
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Nhập công việc cần làm..."
+          placeholderTextColor="#888"
+          value={inputText}
+          onChangeText={(text) => setInputText(text)}
+        />
+        <TouchableOpacity style={styles.addButton} onPress={handleAddTask}>
+          <Text style={styles.addButtonText}>Thêm</Text>
+        </TouchableOpacity>
+      </View>
+
+      {}
       <FlatList
-        data={DANH_SACH_KY_NANG}           
-        renderItem={hienThiKyNang}        
-        keyExtractor={item => item.id}    
-        style={{ width: '100%' }}        
+        data={tasks}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.taskItem}>
+            <Text style={styles.taskText}>{item.text}</Text>
+            <TouchableOpacity 
+              style={styles.deleteButton} 
+              onPress={() => handleDeleteTask(item.id)}
+            >
+              <Text style={styles.deleteButtonText}>Xóa</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>Tuyệt vời! Không có công việc nào tồn đọng.</Text>
+        }
       />
     </View>
   );
@@ -43,30 +77,76 @@ const hienThiKyNang = ({ item }: { item: any }) => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',     
-    paddingTop: 60, 
+    backgroundColor: '#f5f5f5',
+    paddingTop: 60,
     paddingHorizontal: 20,
   },
-  avatar: {
-    width: 120, height: 120, borderRadius: 60, marginBottom: 20,
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  name: {
-    fontSize: 24, fontWeight: 'bold', color: '#333', marginBottom: 8,
+  inputContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
   },
-  bio: {
-    fontSize: 16, color: 'gray', textAlign: 'center', marginBottom: 30,
+  input: {
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    fontSize: 16,
   },
-  sectionTitle: {
-    fontSize: 18, fontWeight: 'bold', alignSelf: 'flex-start', marginBottom: 10,
+  addButton: {
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginLeft: 10,
   },
-  itemBox: {
-    backgroundColor: '#e0f7fa',
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  taskItem: {
+    backgroundColor: '#fff',
     padding: 15,
     borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#eee',
   },
-  itemText: {
-    fontSize: 16, color: '#006064', fontWeight: '500',
+  taskText: {
+    fontSize: 16,
+    color: '#333',
+    flex: 1,
+    marginRight: 10,
+  },
+  deleteButton: {
+    backgroundColor: '#FF3B30',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#666',
+    marginTop: 40,
+    fontSize: 16,
+    fontStyle: 'italic',
   }
 });
