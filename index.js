@@ -1,6 +1,5 @@
 import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
 
-// 1. Tạo dữ liệu mảng chứa danh sách kỹ năng
 const DANH_SACH_KY_NANG = [
   { id: '1', ten: 'React Native' },
   { id: '2', ten: 'JavaScript' },
